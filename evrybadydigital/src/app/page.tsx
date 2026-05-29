@@ -1,6 +1,5 @@
 
-
-
+export default function Page() {
   return (
     <div className="min-h-screen font-sans flex flex-col bg-[#0a1e0a]">
       {/* Hero Section */}
