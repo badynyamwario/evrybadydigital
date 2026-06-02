@@ -32,7 +32,7 @@ export default function NewProjectPage() {
 
   return (
     <div>
-      <TopBar title="New Project" userEmail={user?.email} />
+      <TopBar />
 
       <div className="p-6 max-w-3xl">
         {/* Back link */}

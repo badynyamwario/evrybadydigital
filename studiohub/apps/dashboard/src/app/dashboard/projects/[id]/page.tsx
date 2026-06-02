@@ -82,7 +82,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (loading) {
     return (
       <div>
-        <TopBar title="Project" userEmail={user?.email} />
+        <TopBar />
         <div className="flex items-center justify-center p-20">
           <div className="h-8 w-8 rounded-full border-2 border-white/10 border-t-[#3b82f6]" style={{ animation: 'spin 0.8s linear infinite' }} />
         </div>
@@ -93,7 +93,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (!project) {
     return (
       <div>
-        <TopBar title="Not Found" userEmail={user?.email} />
+        <TopBar />
         <div className="flex flex-col items-center justify-center p-20 animate-fade-in">
           <p className="text-lg text-white/50 mb-4">Project not found</p>
           <Link href="/dashboard/projects" className="text-sm text-[#3b82f6] hover:underline">
@@ -110,7 +110,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div>
-      <TopBar title={project.name} userEmail={user?.email} />
+      <TopBar />
 
       <div className="p-6 max-w-3xl">
         {/* Back link */}

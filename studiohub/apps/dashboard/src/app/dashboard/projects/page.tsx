@@ -44,7 +44,7 @@ export default function ProjectsListPage() {
 
   return (
     <div>
-      <TopBar title="Projects" userEmail={user?.email} />
+      <TopBar />
 
       <div className="p-6 space-y-6">
         {/* Filters bar */}
