@@ -8,9 +8,32 @@ export default function Page() {
   const hero = sections.find((section) => section.section_key === "hero");
   const cards = sections.filter((section) => section.section_key !== "hero");
 
+  const label = hero?.metadata?.label || "Digital marketing & branding for professional service businesses";
+  const title = hero?.title || "Bold digital growth for professional brands.";
+  const subtitle = hero?.subtitle || "A full-service digital agency helping service-based businesses attract clients, build trust, and grow revenue.";
+  const primaryCta = hero?.metadata?.primary_cta || "View our work";
+  const primaryHref = hero?.metadata?.primary_href || "/work";
+  const secondaryCta = hero?.metadata?.secondary_cta || "Talk to us";
+  const secondaryHref = hero?.metadata?.secondary_href || "/contact";
+  const heroImage = hero?.metadata?.image_url || '';
+  const featureA = hero?.metadata?.feature_a_title || "Branding & identity";
+  const featureADetail = hero?.metadata?.feature_a_detail || "Logo, visual systems and positioning that build trust.";
+  const featureB = hero?.metadata?.feature_b_title || "Website & SEO";
+  const featureBDetail = hero?.metadata?.feature_b_detail || "Web development, SEO and lead generation that converts.";
+  const featuredHeading = hero?.metadata?.featured_heading || "Featured case study";
+  const featuredName = hero?.metadata?.featured_name || "Rose Gallery";
+  const featuredDescription = hero?.metadata?.featured_description || "A Northampton fine art gallery project with an 83% keyword first place performance and a modern online shop experience.";
+  const featuredBadge1 = hero?.metadata?.featured_badge_1 || "Web design";
+  const featuredBadge2 = hero?.metadata?.featured_badge_2 || "SEO";
+  const featuredBadge3 = hero?.metadata?.featured_badge_3 || "Creative support";
+  const stat1 = hero?.metadata?.stat_1 || "83%";
+  const stat1Label = hero?.metadata?.stat_1_label || "of focus keywords reaching first place";
+  const stat2 = hero?.metadata?.stat_2 || "Local & national";
+  const stat2Label = hero?.metadata?.stat_2_label || "Supporting startups through bluechip brands.";
+
   return (
     <main className="min-h-screen bg-[#0a1e0a] text-white">
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-[#08140d] py-24 sm:py-28">
         <div className="pointer-events-none absolute inset-0 blur-3xl opacity-80" style={{ background: 'radial-gradient(circle at top right, rgba(255,215,0,0.18), transparent 24%)' }} />
         <div className="pointer-events-none absolute inset-y-0 left-0 w-72 bg-linear-to-b from-[#806500]/25 to-transparent blur-3xl opacity-80" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:py-16">
@@ -18,24 +41,24 @@ export default function Page() {
             <div className="space-y-8 max-w-2xl">
               <div className="inline-flex items-center gap-3 rounded-full border border-[#f7e7a6]/30 bg-white/5 px-4 py-2 text-sm text-[#f7e7a6]">
                 <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#f7e7a6]" />
-                Digital marketing & branding for professional service businesses
+                {label}
               </div>
 
               <div className="space-y-5">
                 <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-                  {hero?.title ?? "Bold digital growth for professional brands."}
+                  {title}
                 </h1>
                 <p className="max-w-xl text-lg leading-8 text-white/75 sm:text-xl">
-                  {hero?.subtitle ?? "A full-service digital agency helping service-based businesses attract clients, build trust, and grow revenue."}
+                  {subtitle}
                 </p>
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <a href="/work" className="inline-flex items-center justify-center rounded-full bg-[#f7e7a6] px-8 py-3 text-sm font-semibold text-[#0a1e0a] transition hover:bg-white">
-                  View our work
+                <a href={primaryHref} className="inline-flex items-center justify-center rounded-full bg-[#f7e7a6] px-8 py-3 text-sm font-semibold text-[#0a1e0a] transition hover:bg-white">
+                  {primaryCta}
                 </a>
-                <a href="/contact" className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                  Talk to us
+                <a href={secondaryHref} className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                  {secondaryCta}
                 </a>
               </div>
 
@@ -58,25 +81,23 @@ export default function Page() {
               <div className="absolute -left-10 bottom-10 h-40 w-40 rounded-full bg-[#f7e7a6]/10 blur-3xl" />
               <div className="relative grid gap-6">
                 <div className="rounded-3xl bg-[#0a1e0a] p-8 text-white/90 shadow-xl shadow-[#00000020]">
-                  <span className="text-sm uppercase tracking-[0.36em] text-[#f7e7a6]">Featured case study</span>
-                  <h2 className="mt-5 text-3xl font-semibold leading-tight">Rose Gallery</h2>
-                  <p className="mt-4 text-sm leading-7 text-white/70">
-                    A Northampton fine art gallery project with an 83% keyword first place performance and a modern online shop experience.
-                  </p>
+                  <span className="text-sm uppercase tracking-[0.36em] text-[#f7e7a6]">{featuredHeading}</span>
+                  <h2 className="mt-5 text-3xl font-semibold leading-tight">{featuredName}</h2>
+                  <p className="mt-4 text-sm leading-7 text-white/70">{featuredDescription}</p>
                   <div className="mt-6 flex flex-wrap gap-3 text-xs text-[#f7e7a6]">
-                    <span className="rounded-full border border-[#f7e7a6]/20 bg-[#f7e7a6]/5 px-3 py-2">Web design</span>
-                    <span className="rounded-full border border-[#f7e7a6]/20 bg-[#f7e7a6]/5 px-3 py-2">SEO</span>
-                    <span className="rounded-full border border-[#f7e7a6]/20 bg-[#f7e7a6]/5 px-3 py-2">Creative support</span>
+                    <span className="rounded-full border border-[#f7e7a6]/20 bg-[#f7e7a6]/5 px-3 py-2">{featuredBadge1}</span>
+                    <span className="rounded-full border border-[#f7e7a6]/20 bg-[#f7e7a6]/5 px-3 py-2">{featuredBadge2}</span>
+                    <span className="rounded-full border border-[#f7e7a6]/20 bg-[#f7e7a6]/5 px-3 py-2">{featuredBadge3}</span>
                   </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm">
-                    <p className="font-semibold text-white">83%</p>
-                    <p className="mt-2 text-white/70">of focus keywords reaching first place</p>
+                    <p className="font-semibold text-white">{stat1}</p>
+                    <p className="mt-2 text-white/70">{stat1Label}</p>
                   </div>
                   <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm">
-                    <p className="font-semibold text-white">Local & national</p>
-                    <p className="mt-2 text-white/70">Supporting startups through bluechip brands.</p>
+                    <p className="font-semibold text-white">{stat2}</p>
+                    <p className="mt-2 text-white/70">{stat2Label}</p>
                   </div>
                 </div>
               </div>

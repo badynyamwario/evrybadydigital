@@ -33,5 +33,9 @@ create policy "Business owners can manage their profiles" on business_profiles
   for all using (auth.uid() = owner_id);
 
 alter table sections enable row level security;
+-- Allow public reads for sections (site content is public). Owners still required for mutations.
+create policy "Public can read sections" on sections
+  for select using (true);
+
 create policy "Business owner can manage their own sections" on sections
   for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);

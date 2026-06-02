@@ -1,6 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create a client only when running in the browser and envs are present.
+// This avoids calling createClient at module-eval time on the server when
+// NEXT_PUBLIC envs may not be available (which caused `supabaseUrl is required`).
+export const supabase = (typeof window !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY)
+	? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } })
+	: null as unknown as ReturnType<typeof createClient> | null;
+
+// Factory for server-side admin client. Requires SUPABASE_SERVICE_ROLE_KEY.
+export function createServerSupabase() {
+	const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+	if (!key) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY in server environment");
+	if (!SUPABASE_URL) throw new Error("Missing SUPABASE_URL in server environment");
+	return createClient(SUPABASE_URL, key);
+}

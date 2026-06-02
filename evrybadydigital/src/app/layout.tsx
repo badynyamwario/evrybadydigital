@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import TopProgress from '@/components/TopProgress';
+import Footer from '@/components/Footer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +30,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#08140d] text-white">
+        <TopProgress />
         <div className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0a1e0a]/90 backdrop-blur-md">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8">
             <a href="/" className="flex items-center gap-3">
@@ -45,6 +48,7 @@ export default function RootLayout({
         </div>
 
         <div className="pt-24">{children}</div>
+        <Footer />
       </body>
     </html>
   );
