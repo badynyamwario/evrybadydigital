@@ -21,8 +21,9 @@ export default function ImageUploader({ businessId, onUpload }: { businessId: st
       const url = data?.publicUrl ?? '';
       if (!url) throw new Error('No public URL returned');
       onUpload(url);
-    } catch (err: any) {
-      setError(err?.message || 'Upload failed');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'Upload failed');
     } finally {
       setUploading(false);
       // clear input value

@@ -2,14 +2,16 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { upsertSection, deleteSection as deleteSectionSvc } from '@/services/sectionService';
+import { upsertSection, deleteSection as deleteSectionSvc, SectionRecord } from '@/services/sectionService';
+import type { Session } from '@supabase/supabase-js';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownToasts from '@/components/Toasts';
 
 type Business = { id: string; name: string; owner_id: string };
+type SectionForm = Partial<SectionRecord> & { metadata?: Record<string, unknown> };
 
 export default function AdminPage() {
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
@@ -49,10 +51,10 @@ export default function AdminPage() {
 
   // Section management state
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
-  const [sections, setSections] = useState<any[]>([]);
+  const [sections, setSections] = useState<SectionRecord[]>([]);
   const [selectedPage, setSelectedPage] = useState('home');
   const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
-  const [sectionForm, setSectionForm] = useState<any>({ title: '', page_slug: 'home', section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} });
+  const [sectionForm, setSectionForm] = useState<SectionForm>({ title: '', page_slug: 'home', section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} });
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const mountedRef = useRef(true);
@@ -91,17 +93,17 @@ export default function AdminPage() {
 
   function setPage(page: string) {
     setSelectedPage(page);
-    setSectionForm((s: any) => ({ ...s, page_slug: page }));
+    setSectionForm((s) => ({ ...s, page_slug: page }));
   }
 
   function updateMetadata(key: string, value: string) {
-    setSectionForm((s: any) => ({
+    setSectionForm((s) => ({
       ...s,
       metadata: { ...(s.metadata ?? {}), [key]: value },
     }));
   }
 
-  function validateSectionForm(f: any) {
+  function validateSectionForm(f: SectionForm) {
     if (!f.title || f.title.trim().length < 2) return 'Title is required (min 2 chars)';
     if (!f.section_key || f.section_key.trim().length < 1) return 'Section key is required';
     if (!f.page_slug || f.page_slug.trim().length < 1) return 'Page slug is required';
@@ -134,11 +136,12 @@ export default function AdminPage() {
       setSections((s) => s.map((x) => (x.id === tempId ? saved : x)));
       setSectionForm({ title: '', page_slug: selectedPage, section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} });
       pushToast('Section saved', 'success');
-    } catch (err: any) {
+    } catch (err) {
       // rollback optimistic
       setSections((s) => s.filter((x) => x.id !== tempId));
-      setFormError(err?.message || 'Save failed');
-      pushToast(err?.message || 'Save failed', 'error');
+      const msg = err instanceof Error ? err.message : String(err);
+      setFormError(msg || 'Save failed');
+      pushToast(msg || 'Save failed', 'error');
     } finally {
       if (mountedRef.current) setSaving(false);
     }
@@ -154,10 +157,11 @@ export default function AdminPage() {
     try {
       await deleteSectionSvc(id);
       pushToast('Section deleted', 'success');
-    } catch (err: any) {
+    } catch (err) {
       setSections(prev);
-      setFormError(err?.message || 'Delete failed');
-      pushToast(err?.message || 'Delete failed', 'error');
+      const msg = err instanceof Error ? err.message : String(err);
+      setFormError(msg || 'Delete failed');
+      pushToast(msg || 'Delete failed', 'error');
     } finally {
       if (mountedRef.current) setSaving(false);
     }

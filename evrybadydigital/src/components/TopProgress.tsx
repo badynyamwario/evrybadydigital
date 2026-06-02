@@ -6,20 +6,20 @@ export default function TopProgress() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let timer: any = null;
+    let timer: number | null = null;
 
     const show = () => {
       setVisible(true);
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => setVisible(false), 1200);
+      if (timer != null) window.clearTimeout(timer);
+      timer = window.setTimeout(() => setVisible(false), 1200);
     };
 
+    type HistoryMethod = (data: unknown, title?: string, url?: string | null) => void;
     const patchHistory = (type: 'pushState' | 'replaceState') => {
-      const orig = (history as any)[type];
-      (history as any)[type] = function () {
-        const ret = orig.apply(this, arguments);
+      const orig = (history as unknown as Record<string, HistoryMethod>)[type];
+      (history as unknown as Record<string, HistoryMethod>)[type] = function (data: unknown, title?: string, url?: string | null) {
+        orig.call(this, data, title, url);
         show();
-        return ret;
       };
     };
 
@@ -29,7 +29,7 @@ export default function TopProgress() {
 
     return () => {
       window.removeEventListener('popstate', show);
-      if (timer) clearTimeout(timer);
+      if (timer != null) window.clearTimeout(timer);
     };
   }, []);
 

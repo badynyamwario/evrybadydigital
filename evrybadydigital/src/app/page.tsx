@@ -8,28 +8,28 @@ export default function Page() {
   const hero = sections.find((section) => section.section_key === "hero");
   const cards = sections.filter((section) => section.section_key !== "hero");
 
-  const label = hero?.metadata?.label || "Digital marketing & branding for professional service businesses";
+  const label = String(hero?.metadata?.label ?? "Digital marketing & branding for professional service businesses");
   const title = hero?.title || "Bold digital growth for professional brands.";
   const subtitle = hero?.subtitle || "A full-service digital agency helping service-based businesses attract clients, build trust, and grow revenue.";
-  const primaryCta = hero?.metadata?.primary_cta || "View our work";
-  const primaryHref = hero?.metadata?.primary_href || "/work";
-  const secondaryCta = hero?.metadata?.secondary_cta || "Talk to us";
-  const secondaryHref = hero?.metadata?.secondary_href || "/contact";
-  const heroImage = hero?.metadata?.image_url || '';
-  const featureA = hero?.metadata?.feature_a_title || "Branding & identity";
-  const featureADetail = hero?.metadata?.feature_a_detail || "Logo, visual systems and positioning that build trust.";
-  const featureB = hero?.metadata?.feature_b_title || "Website & SEO";
-  const featureBDetail = hero?.metadata?.feature_b_detail || "Web development, SEO and lead generation that converts.";
-  const featuredHeading = hero?.metadata?.featured_heading || "Featured case study";
-  const featuredName = hero?.metadata?.featured_name || "Rose Gallery";
-  const featuredDescription = hero?.metadata?.featured_description || "A Northampton fine art gallery project with an 83% keyword first place performance and a modern online shop experience.";
-  const featuredBadge1 = hero?.metadata?.featured_badge_1 || "Web design";
-  const featuredBadge2 = hero?.metadata?.featured_badge_2 || "SEO";
-  const featuredBadge3 = hero?.metadata?.featured_badge_3 || "Creative support";
-  const stat1 = hero?.metadata?.stat_1 || "83%";
-  const stat1Label = hero?.metadata?.stat_1_label || "of focus keywords reaching first place";
-  const stat2 = hero?.metadata?.stat_2 || "Local & national";
-  const stat2Label = hero?.metadata?.stat_2_label || "Supporting startups through bluechip brands.";
+  const primaryCta = String(hero?.metadata?.primary_cta ?? "View our work");
+  const primaryHref = String(hero?.metadata?.primary_href ?? "/work");
+  const secondaryCta = String(hero?.metadata?.secondary_cta ?? "Talk to us");
+  const secondaryHref = String(hero?.metadata?.secondary_href ?? "/contact");
+  const heroImage = String(hero?.metadata?.image_url ?? '');
+  const featureA = String(hero?.metadata?.feature_a_title ?? "Branding & identity");
+  const featureADetail = String(hero?.metadata?.feature_a_detail ?? "Logo, visual systems and positioning that build trust.");
+  const featureB = String(hero?.metadata?.feature_b_title ?? "Website & SEO");
+  const featureBDetail = String(hero?.metadata?.feature_b_detail ?? "Web development, SEO and lead generation that converts.");
+  const featuredHeading = String(hero?.metadata?.featured_heading ?? "Featured case study");
+  const featuredName = String(hero?.metadata?.featured_name ?? "Rose Gallery");
+  const featuredDescription = String(hero?.metadata?.featured_description ?? "A Northampton fine art gallery project with an 83% keyword first place performance and a modern online shop experience.");
+  const featuredBadge1 = String(hero?.metadata?.featured_badge_1 ?? "Web design");
+  const featuredBadge2 = String(hero?.metadata?.featured_badge_2 ?? "SEO");
+  const featuredBadge3 = String(hero?.metadata?.featured_badge_3 ?? "Creative support");
+  const stat1 = String(hero?.metadata?.stat_1 ?? "83%");
+  const stat1Label = String(hero?.metadata?.stat_1_label ?? "of focus keywords reaching first place");
+  const stat2 = String(hero?.metadata?.stat_2 ?? "Local & national");
+  const stat2Label = String(hero?.metadata?.stat_2_label ?? "Supporting startups through bluechip brands.");
 
   return (
     <main className="min-h-screen bg-[#0a1e0a] text-white">

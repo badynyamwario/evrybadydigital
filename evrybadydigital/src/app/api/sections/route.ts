@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabase } from '@/lib/supabaseClient';
 
-type SectionInput = {
-  section: any;
+type SectionInput = { 
+  section: Partial<SectionRecord>;
 };
 
-function validateSection(payload: any) {
+function validateSection(payload: unknown) {
   if (!payload) return 'Missing payload';
   const s = payload.section ?? payload;
   if (!s) return 'Missing section object';
