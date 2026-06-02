@@ -28,14 +28,14 @@ export default function ArticlesPage() {
   const sortedArticles = [...articles].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
-    <div className="max-w-3xl mx-auto py-12 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-[#0a1e0a]">Articles</h1>
+    <div className="max-w-3xl mx-auto py-10 px-5">
+      <h1 className="text-2xl font-bold mb-6 text-[#f7e7a6]">Articles</h1>
       {sortedArticles.map((article) => (
-        <article key={article.id} className="mb-10 p-6 rounded-xl bg-white shadow border border-[#806500]/10">
-          <h2 className="text-2xl font-semibold mb-2 text-[#806500]">{article.title}</h2>
-          <div className="text-sm text-gray-500 mb-4">{article.date}</div>
-          <p className="mb-4 text-[#0a1e0a]">{article.content}</p>
-          <div className="flex items-center gap-4 mb-2">
+        <article key={article.id} className="mb-6 p-5 rounded-xl bg-[#0a1e0a] border border-white/10">
+          <h2 className="text-xl font-semibold mb-1.5 text-[#f7e7a6]">{article.title}</h2>
+          <div className="text-sm text-white/50 mb-3">{article.date}</div>
+          <p className="mb-3 text-white/80">{article.content}</p>
+          <div className="flex items-center gap-3 mb-2">
             <span className="flex items-center gap-1 cursor-pointer select-none">
               👍 <span>{article.reactions.like}</span>
             </span>
@@ -43,19 +43,19 @@ export default function ArticlesPage() {
               ❤️ <span>{article.reactions.love}</span>
             </span>
           </div>
-          <div className="mt-4">
-            <h3 className="font-semibold mb-2 text-[#0a1e0a]">Comments</h3>
+          <div className="mt-3">
+            <h3 className="font-semibold mb-1.5 text-white">Comments</h3>
             <ul className="mb-2">
-              {article.comments.length === 0 && <li className="text-gray-400">No comments yet.</li>}
+              {article.comments.length === 0 && <li className="text-white/40">No comments yet.</li>}
               {article.comments.map((c, i) => (
-                <li key={i} className="mb-1 text-[#0a1e0a]"><b>{c.user}:</b> {c.text}</li>
+                <li key={i} className="mb-1 text-white/70"><b className="text-white/90">{c.user}:</b> {c.text}</li>
               ))}
             </ul>
             <form className="flex gap-2">
-              <input type="text" placeholder="Add a comment..." className="flex-1 border rounded px-2 py-1" disabled />
-              <button type="submit" className="bg-[#806500] text-white px-4 py-1 rounded" disabled>Post</button>
+              <input type="text" placeholder="Add a comment..." className="flex-1 border border-white/10 bg-[#08140d] rounded-lg px-3 py-1.5 text-white" disabled />
+              <button type="submit" className="bg-[#f7e7a6] text-[#0a1e0a] px-4 py-1.5 rounded-lg text-sm font-semibold" disabled>Post</button>
             </form>
-            <div className="text-xs text-gray-400 mt-1">(Demo: Comments/reactions not interactive)</div>
+            <div className="text-xs text-white/40 mt-1">(Demo: Comments/reactions not interactive)</div>
           </div>
         </article>
       ))}

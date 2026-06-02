@@ -65,10 +65,10 @@ export default function Footer() {
   if (themeText && /^#|rgb\(|rgba\(/i.test(themeText)) style.color = themeText;
 
   return (
-    <footer className="mt-16 border-t border-white/6 bg-linear-to-t from-transparent to-black/10 text-white/90" style={style}>
-      <div className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12">
-        <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
-          <div className="space-y-4">
+    <footer className="mt-8 border-t border-white/6 bg-linear-to-t from-transparent to-black/10 text-white/90" style={style}>
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-10">
+        <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+          <div className="space-y-3">
             <h3 className="text-lg font-semibold">About</h3>
             <p className="text-white/70 max-w-sm">{brand}</p>
             {address ? <p className="text-sm text-white/60">{address}</p> : null}
@@ -89,7 +89,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="rounded-2xl overflow-hidden border border-white/8 bg-white/3 p-1">
+          <div className="rounded-xl overflow-hidden border border-white/8 bg-white/3 p-1">
             <iframe
               title="Location map"
               src={`https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.02}%2C${lat-0.01}%2C${lon+0.02}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lon}`}

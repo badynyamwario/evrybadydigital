@@ -8,30 +8,30 @@ export default function AboutPage() {
 
   return (
     <main className="min-h-screen bg-[#0a1e0a] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-24 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6 lg:px-10">
         {loading && <div className="text-lg text-white/70">Loading about content...</div>}
         {error && <div className="text-lg text-rose-400">{error}</div>}
 
         {hero && (
-          <section className="mb-14 rounded-[2.5rem] border border-white/10 bg-white/5 p-12 shadow-2xl shadow-[#00000040]">
+          <section className="mb-10 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-[#00000040] sm:p-8">
             <p className="text-sm uppercase tracking-[0.4em] text-[#f7e7a6]">About EvryBady</p>
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               {hero.title}
             </h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">{hero.subtitle}</p>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-white/70 sm:text-lg">{hero.subtitle}</p>
           </section>
         )}
 
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-2">
           {sections
             .filter((section) => section.section_key !== "hero")
             .map((section) => (
               <article
                 key={section.id}
-                className="rounded-[2.5rem] border border-white/10 bg-[#08140d] p-10 shadow-xl shadow-[#00000030]"
+                className="rounded-2xl border border-white/10 bg-[#08140d] p-6 shadow-xl shadow-[#00000030]"
               >
-                <h2 className="text-2xl font-semibold text-white">{section.title}</h2>
-                <p className="mt-4 text-white/70 leading-8">{section.subtitle}</p>
+                <h2 className="text-xl font-semibold text-white">{section.title}</h2>
+                <p className="mt-3 text-white/70 leading-7">{section.subtitle}</p>
               </article>
             ))}
         </div>
