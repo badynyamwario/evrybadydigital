@@ -1,0 +1,18 @@
+{
+  "name": "studiohub",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/dashboard",
+    "dev:evrybady": "npm run dev --workspace=apps/evrybadydigital",
+    "dev:all": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "build:dashboard": "npm run build --workspace=apps/dashboard",
+    "build:evrybady": "npm run build --workspace=apps/evrybadydigital",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}

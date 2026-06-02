@@ -1,0 +1,10 @@
+{
+  "name": "@studiohub/supabase-client",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.35.0"
+  }
+}
