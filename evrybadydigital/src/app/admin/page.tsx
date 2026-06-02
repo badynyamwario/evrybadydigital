@@ -2,13 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { upsertSection, deleteSection as deleteSectionSvc, SectionRecord } from '@/services/sectionService';
+import { upsertSection, deleteSection as deleteSectionSvc } from '@/services/sectionService';
+import type { SectionRecord } from '@/services/sectionService';
 import type { Session } from '@supabase/supabase-js';
-import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownToasts from '@/components/Toasts';
-
-type Business = { id: string; name: string; owner_id: string };
-type SectionForm = Partial<SectionRecord> & { metadata?: Record<string, unknown> };
+import SectionForm from '@/components/SectionForm';
+import type { Business, SectionFormState, Toast } from '@/types';
 
 export default function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
@@ -17,19 +16,34 @@ export default function AdminPage() {
   const [newName, setNewName] = useState('');
   const [message, setMessage] = useState<string | null>(null);
 
+  // Section Management States
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [sections, setSections] = useState<SectionRecord[]>([]);
+  const [selectedPage, setSelectedPage] = useState('home');
+  const [sectionForm, setSectionForm] = useState<SectionFormState>({ 
+    title: '', page_slug: 'home', section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} 
+  });
+  const [formError, setFormError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
+    
     supabase?.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
+      if (!mountedRef.current) return;
       setSession(data.session ?? null);
     });
 
     const { data: sub } = supabase?.auth.onAuthStateChange((_event, s) => {
+      if (!mountedRef.current) return;
       setSession(s ?? null);
     }) ?? { data: null };
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
       sub?.subscription.unsubscribe();
     };
   }, []);
@@ -43,31 +57,28 @@ export default function AdminPage() {
 
     setLoading(true);
     fetch('/api/businesses', { headers: { Authorization: `Bearer ${session.access_token}` } })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
       .then((json) => setBusinesses(json.businesses ?? []))
       .catch(() => setMessage('Failed to load businesses'))
       .finally(() => setLoading(false));
   }, [session]);
 
-  // Section management state
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
-  const [sections, setSections] = useState<SectionRecord[]>([]);
-  const [selectedPage, setSelectedPage] = useState('home');
-  const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
-  const [sectionForm, setSectionForm] = useState<SectionForm>({ title: '', page_slug: 'home', section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} });
-  const [formError, setFormError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    return () => { mountedRef.current = false; };
-  }, []);
+  const pushToast = (message: string, type: Toast['type'] = 'info') => {
+    const id = String(Date.now()) + Math.random().toString(36).slice(2, 8);
+    setToasts((s) => [{ id, message, type }, ...s]);
+    setTimeout(() => setToasts((s) => s.filter((x) => x.id !== id)), 4000);
+  };
 
   async function fetchSectionsForBusiness(bizId: string) {
     setLoading(true);
     try {
       const token = session?.access_token;
-      const res = await fetch(`/api/sections?business_id=${encodeURIComponent(bizId)}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined });
+      const res = await fetch(`/api/sections?business_id=${encodeURIComponent(bizId)}`, { 
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined 
+      });
       const json = await res.json();
       if (res.ok) setSections(json.sections ?? []);
       else setFormError(json.message || 'Unable to fetch sections');
@@ -78,7 +89,7 @@ export default function AdminPage() {
     }
   }
 
-  function selectBusiness(biz: Business | null) {
+  function handleSelectBusiness(biz: Business | null) {
     setSelectedBusiness(biz);
     setSelectedPage('home');
     setSections([]);
@@ -87,69 +98,18 @@ export default function AdminPage() {
     if (biz?.id) fetchSectionsForBusiness(biz.id);
   }
 
-  const visibleSections = sections
-    .filter((s) => s.page_slug === selectedPage)
-    .sort((a, b) => (Number(a.position ?? 0) - Number(b.position ?? 0)));
-
-  function setPage(page: string) {
-    setSelectedPage(page);
-    setSectionForm((s) => ({ ...s, page_slug: page }));
-  }
-
-  function updateMetadata(key: string, value: string) {
-    setSectionForm((s) => ({
-      ...s,
-      metadata: { ...(s.metadata ?? {}), [key]: value },
-    }));
-  }
-
-  /** Safely read a metadata value as a string for input fields */
-  function metaStr(key: string): string {
-    const v = sectionForm.metadata?.[key];
-    return typeof v === 'string' ? v : '';
-  }
-
-  // Helpers for structured footer links (array of {label, href})
-  function getFooterLinks(): Array<{ label: string; href: string }> {
-    const raw = sectionForm.metadata?.links;
-    if (Array.isArray(raw)) return raw as Array<{ label: string; href: string }>;
-    if (typeof raw === 'string' && raw.trim()) {
-      return raw.split(',').map((l: string) => {
-        const parts = l.split('|').map((p) => p.trim());
-        return { label: parts[0] ?? l, href: parts[1] ?? '#' };
-      });
-    }
-    return [];
-  }
-
-  function setFooterLinks(next: Array<{ label: string; href: string }>) {
-    setSectionForm((s) => ({ ...s, metadata: { ...(s.metadata ?? {}), links: next } }));
-  }
-
-  function addFooterLink() {
-    const current = getFooterLinks();
-    setFooterLinks([...current, { label: 'New link', href: '#' }]);
-  }
-
-  function updateFooterLink(index: number, field: 'label' | 'href', value: string) {
-    const current = getFooterLinks();
-    const next = current.map((l, i) => (i === index ? { ...l, [field]: value } : l));
-    setFooterLinks(next);
-  }
-
-  function removeFooterLink(index: number) {
-    const current = getFooterLinks();
-    const next = current.filter((_, i) => i !== index);
-    setFooterLinks(next);
-  }
-
-  function validateSectionForm(f: SectionForm) {
+  // Safe and precise Absolute URL structure verification
+  function validateSectionForm(f: SectionFormState) {
     if (!f.title || f.title.trim().length < 2) return 'Title is required (min 2 chars)';
     if (!f.section_key || f.section_key.trim().length < 1) return 'Section key is required';
     if (!f.page_slug || f.page_slug.trim().length < 1) return 'Page slug is required';
     if (f.position != null && isNaN(Number(f.position))) return 'Position must be a number';
+    
     if (f.cta_url && f.cta_url.trim()) {
-      try { new URL(f.cta_url, 'http://localhost'); } catch (e) { return 'CTA URL is invalid'; }
+      if (!/^https?:\/\/\S+/i.test(f.cta_url)) {
+        return 'CTA URL must be a valid absolute path starting with http:// or https://';
+      }
+      try { new URL(f.cta_url); } catch (e) { return 'CTA URL is structured incorrectly'; }
     }
     return null;
   }
@@ -158,30 +118,36 @@ export default function AdminPage() {
     e?.preventDefault();
     setFormError(null);
     if (!selectedBusiness) return setFormError('Select a business first');
-    const v = validateSectionForm(sectionForm);
-    if (v) return setFormError(v);
-    // Optimistic create/update
+    
+    const validationError = validateSectionForm(sectionForm);
+    if (validationError) return setFormError(validationError);
+
     setSaving(true);
     const isUpdate = !!sectionForm.id;
-    const tempId = (isUpdate ? sectionForm.id : undefined) ?? `temp-${Date.now()}`;
-    const optimistic = { ...sectionForm, id: tempId, business_id: selectedBusiness.id };
-    setSections((s) => {
-      if (isUpdate) return s.map((x) => (x.id === optimistic.id ? { ...x, ...optimistic } as SectionRecord : x));
-      return [...s, optimistic as SectionRecord];
+    const previousSectionsSnapshot = [...sections]; // State snapshot created
+
+    // Generate strict temp identifier context
+    const tempId = sectionForm.id ?? `temp-${Date.now()}`;
+    const optimisticEntry = { ...sectionForm, id: tempId, business_id: selectedBusiness.id } as SectionRecord;
+
+    setSections((currentSections) => {
+      if (isUpdate) return currentSections.map((x) => (x.id === tempId ? optimisticEntry : x));
+      return [...currentSections, optimisticEntry];
     });
+
     try {
       const payload = { ...sectionForm, business_id: selectedBusiness.id };
       const saved = await upsertSection(payload);
-      // replace temp entry with saved data
-      setSections((s) => s.map((x) => (x.id === tempId ? saved : x)));
+      
+      setSections((currentSections) => currentSections.map((x) => (x.id === tempId ? saved : x)));
       setSectionForm({ title: '', page_slug: selectedPage, section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} });
-      pushToast('Section saved', 'success');
+      pushToast('Section saved securely', 'success');
     } catch (err) {
-      // rollback optimistic
-      setSections((s) => s.filter((x) => x.id !== tempId));
-      const msg = err instanceof Error ? err.message : String(err);
-      setFormError(msg || 'Save failed');
-      pushToast(msg || 'Save failed', 'error');
+      // Direct rollback to snapshot context upon rejection
+      setSections(previousSectionsSnapshot);
+      const msg = err instanceof Error ? err.message : 'Save sequence aborted';
+      setFormError(msg);
+      pushToast(msg, 'error');
     } finally {
       if (mountedRef.current) setSaving(false);
     }
@@ -189,58 +155,60 @@ export default function AdminPage() {
 
   async function handleDeleteSection(id: string) {
     if (!selectedBusiness) return setFormError('Select a business first');
-    if (!confirm('Delete this section?')) return;
-    // Optimistic delete
+    if (!confirm('Delete this section permanently?')) return;
+
     setSaving(true);
-    const prev = sections;
+    const previousSectionsSnapshot = [...sections];
     setSections((s) => s.filter((x) => x.id !== id));
+
     try {
       await deleteSectionSvc(id);
       pushToast('Section deleted', 'success');
     } catch (err) {
-      setSections(prev);
-      const msg = err instanceof Error ? err.message : String(err);
-      setFormError(msg || 'Delete failed');
-      pushToast(msg || 'Delete failed', 'error');
+      setSections(previousSectionsSnapshot); // Rollback
+      const msg = err instanceof Error ? err.message : 'Deletion failure';
+      setFormError(msg);
+      pushToast(msg, 'error');
     } finally {
       if (mountedRef.current) setSaving(false);
     }
   }
 
-  // Optimistic UI helpers + toasts
-  const [toasts, setToasts] = useState<Array<{ id: string; message: string; type?: 'info' | 'success' | 'error' }>>([]);
-  function pushToast(message: string, type: 'info' | 'success' | 'error' = 'info') {
-    const t = { id: String(Date.now()) + Math.random().toString(36).slice(2, 8), message, type };
-    setToasts((s) => [t, ...s]);
-    setTimeout(() => setToasts((s) => s.filter((x) => x.id !== t.id)), 4000);
-  }
-
-  // Markdown is rendered by shared component below
-
   async function createBusiness(e: React.FormEvent) {
     e.preventDefault();
-    if (!newName) return setMessage('Enter name');
+    if (!newName.trim()) return setMessage('Enter name');
     setMessage(null);
     setLoading(true);
-    const res = await fetch('/api/businesses', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ name: newName }),
-    });
-    const json = await res.json();
-    if (!res.ok) setMessage(json.message || 'Failed');
-    else {
-      setBusinesses((b) => [...b, json.business]);
-      setNewName('');
+    try {
+      const res = await fetch('/api/businesses', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ name: newName.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setMessage(json.message || 'Failed to establish new business module');
+      } else {
+        setBusinesses((b) => [...b, json.business]);
+        setNewName('');
+        pushToast('Business created successfully', 'success');
+      }
+    } catch {
+      setMessage('Network interaction failed');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
+
+  const visibleSections = sections
+    .filter((s) => s.page_slug === selectedPage)
+    .sort((a, b) => Number(a.position ?? 0) - Number(b.position ?? 0));
 
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#08140d] text-white">
-        <div className="max-w-md p-8">
-          <p className="mb-4">You must <a href="/login" className="underline">sign in</a> to access the admin dashboard.</p>
+        <div className="max-w-md p-8 text-center">
+          <p className="mb-4">You must <a href="/login" className="underline text-[#f7e7a6]">sign in</a> to access the admin dashboard.</p>
         </div>
       </div>
     );
@@ -248,286 +216,81 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#08140d] text-white p-8">
-      <div className="max-w-4xl">
-        <h1 className="mb-4 text-2xl font-semibold">Admin dashboard</h1>
-        <p className="mb-6 text-sm text-white/70">Signed in as {session.user?.email}</p>
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-6">
+          <h1 className="text-2xl font-semibold">Admin dashboard</h1>
+          <p className="text-sm text-white/70">Signed in as {session.user?.email}</p>
+        </header>
 
-        <form onSubmit={createBusiness} className="mb-6 flex gap-3">
-          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New business name" className="flex-1 rounded-md border border-white/10 bg-transparent px-4 py-2" />
-          <button disabled={loading} className="rounded-md bg-[#f7e7a6] px-4 py-2 text-[#0a1e0a]">Create</button>
+        <form onSubmit={createBusiness} className="mb-8 flex gap-3">
+          <input 
+            value={newName} 
+            onChange={(e) => setNewName(e.target.value)} 
+            placeholder="New business name" 
+            className="flex-1 rounded-md border border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-white/30" 
+          />
+          <button disabled={loading} className="rounded-md bg-[#f7e7a6] px-4 py-2 text-[#0a1e0a] font-medium disabled:opacity-50">
+            Create
+          </button>
         </form>
 
-        {message ? <div className="mb-4 text-sm">{message}</div> : null}
+        {message && <div className="mb-4 text-sm p-3 bg-white/5 rounded border border-white/10">{message}</div>}
 
-        <section>
+        <section className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">Your businesses</h2>
-          {loading ? (
-            <div>Loading…</div>
+          {loading && businesses.length === 0 ? (
+            <div className="text-sm text-white/50">Loading engine instances…</div>
           ) : (
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {businesses.map((b) => (
-                <li key={b.id} className="rounded-md border border-white/10 p-3">{b.name} — {b.id}</li>
+                <li key={b.id} className="rounded-md border border-white/10 bg-white/2 p-3 text-sm flex justify-between items-center">
+                  <span><strong>{b.name}</strong> <span className="text-xs text-white/40 ml-2">({b.id})</span></span>
+                </li>
               ))}
-              {businesses.length === 0 ? <li className="text-sm text-white/70">No businesses yet.</li> : null}
+              {businesses.length === 0 && <li className="text-sm text-white/50 italic">No businesses bound to this profile.</li>}
             </ul>
           )}
         </section>
-        {/* Sections management UI */}
+
         <section className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">Manage sections</h2>
           <div className="space-y-4">
             <label className="block">
-              <span className="sr-only">Select business</span>
-              <select aria-label="Select business" className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2" onChange={(e) => {
-                const id = e.target.value;
-                const biz = businesses.find(b => b.id === id) ?? null;
-                selectBusiness(biz);
-              }} value={selectedBusiness?.id ?? ''}>
-                <option value="">— Choose business —</option>
-                {businesses.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              <span className="sr-only">Select business target context</span>
+              <select 
+                aria-label="Select business" 
+                className="w-full border rounded px-3 py-2 bg-transparent text-white border-white/20 focus:outline-none focus:ring-2" 
+                onChange={(e) => {
+                  const id = e.target.value;
+                  const biz = businesses.find(b => b.id === id) ?? null;
+                  handleSelectBusiness(biz);
+                }} 
+                value={selectedBusiness?.id ?? ''}
+              >
+                <option value="" className="text-black">— Choose business —</option>
+                {businesses.map(b => <option key={b.id} value={b.id} className="text-black">{b.name}</option>)}
               </select>
             </label>
 
             {selectedBusiness && (
-              <div className="bg-white/5 p-4 rounded">
-                <h3 className="font-medium mb-2">Sections for {selectedBusiness.name}</h3>
-                <form className="space-y-3" onSubmit={handleSaveSection} aria-describedby="section-form-error">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <label className="block">
-                      <span className="text-sm">Title</span>
-                      <input aria-required="true" value={sectionForm.title} onChange={(e) => setSectionForm(s => ({ ...s, title: e.target.value }))} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm">Section Key</span>
-                      <input value={sectionForm.section_key} onChange={(e) => setSectionForm(s => ({ ...s, section_key: e.target.value }))} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm">Page</span>
-                      <select value={selectedPage} onChange={(e) => setPage(e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2">
-                        <option value="home">home</option>
-                        <option value="about">about</option>
-                        <option value="services">services</option>
-                        <option value="work">work</option>
-                        <option value="global">global</option>
-                        <option value="contact">contact</option>
-                      </select>
-                    </label>
-                    <label className="block">
-                      <span className="text-sm">Position</span>
-                      <input type="number" value={sectionForm.position} onChange={(e) => setSectionForm(s => ({ ...s, position: Number(e.target.value) }))} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                    </label>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm">Content</label>
-                      <div className="flex gap-2">
-                        <button type="button" onClick={() => setPreviewMode('edit')} className={`px-2 py-1 rounded ${previewMode === 'edit' ? 'bg-white/10' : ''}`}>Edit</button>
-                        <button type="button" onClick={() => setPreviewMode('preview')} className={`px-2 py-1 rounded ${previewMode === 'preview' ? 'bg-white/10' : ''}`}>Preview</button>
-                      </div>
-                    </div>
-                    {/* Use MarkdownEditor component for editing and preview */}
-                    <div className="mt-2">
-                      {/* Lazy load client Markdown editor via dynamic import could be added later */}
-                      <MarkdownEditor value={sectionForm.content ?? ''} onChange={(next) => setSectionForm(s => ({ ...s, content: next }))} businessId={selectedBusiness.id} />
-                    </div>
-                  </div>
-
-                  <label className="block">
-                    <span className="text-sm">Subtitle</span>
-                    <input value={sectionForm.subtitle} onChange={(e) => setSectionForm(s => ({ ...s, subtitle: e.target.value }))} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <label className="block">
-                      <span className="text-sm">CTA label</span>
-                      <input value={sectionForm.cta_text ?? ''} onChange={(e) => setSectionForm(s => ({ ...s, cta_text: e.target.value }))} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm">CTA URL</span>
-                      <input value={sectionForm.cta_url ?? ''} onChange={(e) => setSectionForm(s => ({ ...s, cta_url: e.target.value }))} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                    </label>
-                  </div>
-
-                  {sectionForm.section_key === 'hero' && (
-                    <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                      <h4 className="mb-3 text-sm font-semibold text-white">Hero metadata</h4>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <label className="block">
-                          <span className="text-sm">Top badge text</span>
-                          <input value={metaStr('label')} onChange={(e) => updateMetadata('label', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Hero image URL</span>
-                          <input value={metaStr('image_url')} onChange={(e) => updateMetadata('image_url', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Primary CTA label</span>
-                          <input value={metaStr('primary_cta')} onChange={(e) => updateMetadata('primary_cta', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Primary CTA href</span>
-                          <input value={metaStr('primary_href')} onChange={(e) => updateMetadata('primary_href', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Secondary CTA label</span>
-                          <input value={metaStr('secondary_cta')} onChange={(e) => updateMetadata('secondary_cta', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Secondary CTA href</span>
-                          <input value={metaStr('secondary_href')} onChange={(e) => updateMetadata('secondary_href', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Feature 1 title</span>
-                          <input value={metaStr('feature_a_title')} onChange={(e) => updateMetadata('feature_a_title', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Feature 1 detail</span>
-                          <input value={metaStr('feature_a_detail')} onChange={(e) => updateMetadata('feature_a_detail', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Feature 2 title</span>
-                          <input value={metaStr('feature_b_title')} onChange={(e) => updateMetadata('feature_b_title', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Feature 2 detail</span>
-                          <input value={metaStr('feature_b_detail')} onChange={(e) => updateMetadata('feature_b_detail', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block sm:col-span-2">
-                          <span className="text-sm">Featured case study title</span>
-                          <input value={metaStr('featured_name')} onChange={(e) => updateMetadata('featured_name', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block sm:col-span-2">
-                          <span className="text-sm">Featured case study description</span>
-                          <input value={metaStr('featured_description')} onChange={(e) => updateMetadata('featured_description', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block sm:col-span-2">
-                          <span className="text-sm">Featured badges (comma separated)</span>
-                          <input value={[metaStr('featured_badge_1'), metaStr('featured_badge_2'), metaStr('featured_badge_3')].filter(Boolean).join(', ')} onChange={(e) => {
-                            const [a, b, c] = e.target.value.split(',').map((value) => value.trim());
-                            updateMetadata('featured_badge_1', a || '');
-                            updateMetadata('featured_badge_2', b || '');
-                            updateMetadata('featured_badge_3', c || '');
-                          }} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Stat 1 value</span>
-                          <input value={metaStr('stat_1')} onChange={(e) => updateMetadata('stat_1', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Stat 1 label</span>
-                          <input value={metaStr('stat_1_label')} onChange={(e) => updateMetadata('stat_1_label', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Stat 2 value</span>
-                          <input value={metaStr('stat_2')} onChange={(e) => updateMetadata('stat_2', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm">Stat 2 label</span>
-                          <input value={metaStr('stat_2_label')} onChange={(e) => updateMetadata('stat_2_label', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                        </label>
-                      </div>
-                    </div>
-                  )}
-
-                    {sectionForm.section_key === 'footer' && (
-                      <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                        <h4 className="mb-3 text-sm font-semibold text-white">Footer metadata</h4>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <label className="block sm:col-span-2">
-                            <span className="text-sm">Brand blurb</span>
-                            <input value={metaStr('brand_blurb')} onChange={(e) => updateMetadata('brand_blurb', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                          </label>
-                          <label className="block sm:col-span-2">
-                            <span className="text-sm">Address</span>
-                            <input value={metaStr('address')} onChange={(e) => updateMetadata('address', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                          </label>
-                          <label className="block">
-                            <span className="text-sm">Latitude</span>
-                            <input value={metaStr('lat')} onChange={(e) => updateMetadata('lat', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                          </label>
-                          <label className="block">
-                            <span className="text-sm">Longitude</span>
-                            <input value={metaStr('lon')} onChange={(e) => updateMetadata('lon', e.target.value)} className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                          </label>
-                          <h4 className="mb-2 text-sm font-semibold">Theme & appearance</h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
-                            <label className="block">
-                              <span className="text-sm">Background color</span>
-                              <input value={metaStr('theme_bg')} onChange={(e) => updateMetadata('theme_bg', e.target.value)} placeholder="#0b0b0b or bg class" className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                            </label>
-                            <label className="block">
-                              <span className="text-sm">Text color</span>
-                              <input value={metaStr('theme_text')} onChange={(e) => updateMetadata('theme_text', e.target.value)} placeholder="#ffffff or text class" className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                            </label>
-                            <label className="block">
-                              <span className="text-sm">Accent color</span>
-                              <input value={metaStr('accent_color')} onChange={(e) => updateMetadata('accent_color', e.target.value)} placeholder="#f7e7a6" className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                            </label>
-                          </div>
-                          <label className="block sm:col-span-2">
-                            <span className="text-sm">Footer links</span>
-                            <div className="space-y-2">
-                              {getFooterLinks().map((l, i) => (
-                                <div key={i} className="flex gap-2 items-center">
-                                  <input value={l.label} onChange={(e) => updateFooterLink(i, 'label', e.target.value)} placeholder="Label" className="flex-1 mt-1 border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                                  <input value={l.href} onChange={(e) => updateFooterLink(i, 'href', e.target.value)} placeholder="/path or https://" className="flex-1 mt-1 border rounded px-2 py-2 focus:outline-none focus:ring-2" />
-                                  <button type="button" onClick={() => removeFooterLink(i)} className="px-2 py-2 bg-red-600 text-white rounded">Remove</button>
-                                </div>
-                              ))}
-                              <div className="pt-2">
-                                <button type="button" onClick={addFooterLink} className="px-3 py-2 bg-[#f7e7a6] text-[#0a1e0a] rounded">Add link</button>
-                              </div>
-                            </div>
-                          </label>
-                        </div>
-                      </div>
-                    )}
-
-                  <div className="flex items-center gap-2">
-                    <button type="submit" disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded focus:outline-none focus:ring-2">{saving ? 'Saving…' : 'Save section'}</button>
-                    <button type="button" onClick={() => setSectionForm({ title: '', page_slug: selectedPage, section_key: '', subtitle: '', content: '', position: 0, cta_text: '', cta_url: '', metadata: {} })} className="px-3 py-2 border rounded">Reset</button>
-                  </div>
-                </form>
-                <div id="section-form-error" role="status" aria-live="polite" className="mt-2 text-sm text-red-400">{formError}</div>
-
-                <div className="mt-4">
-                  <h4 className="font-medium">Existing sections</h4>
-                  <ul className="mt-2 space-y-2">
-                    {visibleSections.length === 0 && <li className="text-sm text-white/70">No sections yet for this page</li>}
-                    {visibleSections.map((s) => (
-                      <li key={s.id} className="flex items-start justify-between border rounded p-2 bg-white/2">
-                        <div>
-                          <div className="font-semibold text-sm text-white">{s.title}</div>
-                          <div className="text-xs text-white/60">{s.page_slug} · key: {s.section_key} · pos: {s.position}</div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => {
-                            setSelectedPage(s.page_slug || 'home');
-                            setSectionForm({
-                              title: s.title,
-                              page_slug: s.page_slug,
-                              section_key: s.section_key,
-                              subtitle: s.subtitle ?? '',
-                              content: s.content ?? '',
-                              position: s.position ?? 0,
-                              cta_text: s.cta_text ?? '',
-                              cta_url: s.cta_url ?? '',
-                              metadata: s.metadata ?? {},
-                              id: s.id,
-                            });
-                          }} className="px-2 py-1 border rounded">Edit</button>
-                          <button onClick={() => handleDeleteSection(s.id)} className="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              <SectionForm 
+                selectedBusiness={selectedBusiness}
+                selectedPage={selectedPage}
+                setSelectedPage={setSelectedPage}
+                sectionForm={sectionForm}
+                setSectionForm={setSectionForm}
+                onSave={handleSaveSection}
+                saving={saving}
+                formError={formError}
+                setFormError={setFormError}
+                visibleSections={visibleSections}
+                onDelete={handleDeleteSection}
+              />
             )}
           </div>
         </section>
-          {/* Toasts */}
-          <MarkdownToasts toasts={toasts} />
+
+        <MarkdownToasts toasts={toasts} />
       </div>
     </div>
   );
