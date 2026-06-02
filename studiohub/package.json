@@ -13,6 +13,7 @@
     "build": "npm run build --workspaces --if-present",
     "build:dashboard": "npm run build --workspace=apps/dashboard",
     "build:evrybady": "npm run build --workspace=apps/evrybadydigital",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "seed:admins": "node scripts/seed-admins.mjs"
   }
 }
