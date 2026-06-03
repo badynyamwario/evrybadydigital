@@ -1,0 +1,43 @@
+Title:
+
+Savannah Bar & Grill
+                  
+Desc: 
+
+Experience the art of dining in a relaxed, luxurious setting. 
+
+Savor our chef’s signature dishes, curated wines, and world-class cocktails
+
+Perfect for celebrations, business, or a night out.
+
+
+Logo Prompt:
+
+"Luxury restaurant logo for 'Savannah B&G', elegant serif font, gold and black color scheme, subtle African savannah motif, high-end, minimal, modern, vector style, transparent background"
+
+
+Favicon Prompt:
+
+"Minimalist gold and black icon, stylized 'S' with a savannah tree silhouette, luxury restaurant branding, simple, clear, vector, 64x64px, transparent background"
+
+
+Apple Icon Prompt:
+
+"Elegant app icon for 'Savannah B&G', gold and black, luxury restaurant, rounded corners, savannah tree and sun, high-end, 180x180px, vector, transparent background"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

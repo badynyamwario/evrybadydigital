@@ -144,11 +144,25 @@ export async function PATCH(req: NextRequest) {
   // Verify ownership
   const { data: existing } = await server
     .from('projects')
-    .select('id, owner_id')
+    .select('id, owner_id, name')
     .eq('id', body.id)
     .single();
   if (!existing) return NextResponse.json({ message: 'Project not found' }, { status: 404 });
   if (existing.owner_id !== user.id) return NextResponse.json({ message: 'Not authorized' }, { status: 403 });
+
+  // Handle folder rename if name is changing
+  if (body.name !== undefined && body.name !== existing.name) {
+    const oldAppDir = path.join(process.cwd(), '..', existing.name);
+    const newAppDir = path.join(process.cwd(), '..', body.name);
+    try {
+      await fs.access(oldAppDir);
+      await fs.rename(oldAppDir, newAppDir);
+    } catch (e) {
+      console.error('Failed to rename physical folder from', existing.name, 'to', body.name, e);
+      // If we cannot rename the folder, we should probably fail the update to keep DB and FS in sync
+      return NextResponse.json({ message: 'Could not rename project folder on disk. Please ensure the new name is valid.' }, { status: 400 });
+    }
+  }
 
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (body.name !== undefined) update.name = body.name;
@@ -168,6 +182,19 @@ export async function PATCH(req: NextRequest) {
     .select()
     .single();
   if (error) return NextResponse.json({ message: error.message }, { status: 500 });
+
+  // Auto-sync UI data
+  if (data && data.name) {
+    try {
+      const appDir = path.join(process.cwd(), '..', data.name);
+      // Check if folder exists
+      await fs.access(appDir);
+      const uiDataPath = path.join(appDir, 'ui-data.json');
+      await fs.writeFile(uiDataPath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (e) {
+      console.error('Failed to sync UI data for project', data.name, e);
+    }
+  }
 
   return NextResponse.json({ project: data });
 }

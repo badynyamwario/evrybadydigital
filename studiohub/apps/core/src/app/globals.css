@@ -1,0 +1,18 @@
+@import '../shared/design/tokens.css';
+@import '../shared/design/base.css';
+
+:root {
+  --accent: #ec4899;
+  --brand: #ec4899;
+  --brand-hover: #db2777;
+  --hero-gradient: linear-gradient(135deg, #be185d 0%, #ec4899 55%, #f9a8d4 100%);
+}
+
+body {
+  background: radial-gradient(circle at top right, #0f172a 0%, var(--bg-main) 52%);
+  color: var(--text-main);
+}
+
+a {
+  color: inherit;
+}

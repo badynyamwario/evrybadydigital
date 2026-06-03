@@ -27,6 +27,28 @@ export default function ProjectForm({ mode, project, onSubmit, onCancel, saving 
   const [form, setForm] = useState<ProjectFormData>(emptyForm);
   const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [devUrl, setDevUrl] = useState('http://localhost:3000');
+  const [recentDevUrls, setRecentDevUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('recentDevUrls');
+      if (stored) {
+        setRecentDevUrls(JSON.parse(stored));
+      }
+    } catch (e) {}
+  }, []);
+
+  const handleOpenDevEnv = () => {
+    if (devUrl) {
+      const updated = [devUrl, ...recentDevUrls.filter(u => u !== devUrl)].slice(0, 5);
+      setRecentDevUrls(updated);
+      try {
+        localStorage.setItem('recentDevUrls', JSON.stringify(updated));
+      } catch (e) {}
+      window.open(devUrl, '_blank');
+    }
+  };
 
   useEffect(() => {
     if (mode === 'edit' && project) {
@@ -229,6 +251,46 @@ export default function ProjectForm({ mode, project, onSubmit, onCancel, saving 
             </div>
           )}
         </div>
+
+        {/* Dev Environment Actions */}
+        {mode === 'edit' && (
+          <div className="sm:col-span-2 pt-4 mt-2 border-t border-white/10">
+            <label htmlFor="dev-url" className="block text-xs font-medium text-white/50 mb-1.5">
+              Development Environment URL
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="dev-url"
+                type="url"
+                list="recent-dev-urls"
+                value={devUrl}
+                onChange={(e) => setDevUrl(e.target.value)}
+                placeholder="http://localhost:3000"
+                className="flex-1"
+              />
+              <datalist id="recent-dev-urls">
+                {recentDevUrls.map((url, idx) => (
+                  <option key={idx} value={url} />
+                ))}
+              </datalist>
+              <button
+                type="button"
+                onClick={handleOpenDevEnv}
+                className="whitespace-nowrap rounded-xl bg-purple-500/20 text-purple-400 px-4 py-2 text-sm font-medium transition hover:bg-purple-500/30"
+              >
+                Open Dev Env
+              </button>
+              <a
+                href="http://localhost:3000/dashboard"
+                target="_blank"
+                rel="noreferrer"
+                className="whitespace-nowrap rounded-xl bg-emerald-500/20 text-emerald-400 px-4 py-2 text-sm font-medium transition hover:bg-emerald-500/30 flex items-center"
+              >
+                Open Dashboard
+              </a>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Actions */}
