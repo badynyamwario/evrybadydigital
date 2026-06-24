@@ -1,6 +1,7 @@
 export type Project = {
   id: string;
   owner_id: string;
+  org_id?: string | null;
   name: string;
   description: string | null;
   status: 'active' | 'paused' | 'completed';
