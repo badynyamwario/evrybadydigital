@@ -8,6 +8,11 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=apps/dashboard",
+    "dev:dashboard": "npm run dev --workspace=apps/dashboard",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev:client": "npm run dev --workspace=apps/client",
+    "dev:savannah": "npm run dev --workspace=apps/savannah",
+    "dev:studiohub": "npm run dev --workspace=apps/studiohub",
     "dev:evrybady": "npm run dev --workspace=apps/evrybadydigital",
     "dev:all": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
