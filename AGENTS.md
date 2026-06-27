@@ -8,7 +8,6 @@ Guidance for AI agents working in this repository.
 - Default app: **Dashboard** (`apps/dashboard`) — internal StudioHub console
 - Public marketing site: **Evrybady Digital** (`apps/evrybadydigital`)
 - **Core** (`apps/core`) — dev launchpad; requires Node ≥24 and missing `apps/shared/` modules (dev/build may fail)
-- **Savannah** (`apps/savannah`) — static HTML site (no Next.js dev script)
 
 ## Standard commands
 
