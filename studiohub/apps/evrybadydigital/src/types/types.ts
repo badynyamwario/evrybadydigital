@@ -15,6 +15,25 @@ export type FooterLink = {
   href: string; 
 };
 
+export type SocialPlatform = 'instagram' | 'linkedin' | 'twitter' | 'tiktok' | 'facebook';
+
+export type HookAngle = 'professional' | 'casual' | 'humorous' | 'inspirational' | 'educational' | 'controversial';
+
+export interface HookFormData {
+  platform: SocialPlatform | '';
+  topic: string;
+  audience: string;
+  angle: HookAngle | '';
+  keywords: string;
+}
+
+export interface HookResult {
+  hook: string;
+  platform: SocialPlatform;
+  angle: HookAngle;
+  why: string;
+}
+
 export type ToastType = 'info' | 'success' | 'error';
 
 export type Toast = { 

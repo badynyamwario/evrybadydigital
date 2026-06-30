@@ -30,11 +30,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#08140d] text-white">
+      <body className="min-h-full flex flex-col bg-surface-alt text-white">
         <TopProgress />
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded focus:bg-brand focus:px-4 focus:py-2 focus:text-surface focus:text-sm focus:font-semibold focus:outline-none">
+          Skip to main content
+        </a>
         <Navbar />
 
-        <div className="pt-16">{children}</div>
+        <div id="main-content" className="pt-16">{children}</div>
         <Footer />
       </body>
     </html>

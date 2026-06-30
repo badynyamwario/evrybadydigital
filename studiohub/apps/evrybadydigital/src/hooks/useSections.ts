@@ -140,6 +140,17 @@ const fallbackSections: Record<string, SectionRecord[]> = {
       position: 1,
     },
   ],
+  "social-hooks": [
+    {
+      id: "social-hooks-intro",
+      page_slug: "social-hooks",
+      section_key: "social_hooks",
+      title: "Social media hook generator",
+      subtitle: "Craft scroll-stopping hooks for any social platform.",
+      content: "Select your platform, pick a tone, and get ready-to-use hooks that grab attention.",
+      position: 0,
+    },
+  ],
 };
 
 export function useSections(pageSlug: string) {

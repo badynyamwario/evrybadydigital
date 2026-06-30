@@ -18,9 +18,9 @@ export default function MarkdownEditor({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <div className="text-sm font-medium">Content (Markdown)</div>
+        <label htmlFor="md-editor" className="text-sm font-medium">Content (Markdown)</label>
       </div>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} className="w-full border rounded p-2 bg-transparent" style={{ minHeight: 120 }} />
+      <textarea id="md-editor" value={value} onChange={(e) => onChange(e.target.value)} className="w-full border rounded p-2 bg-transparent" style={{ minHeight: 120 }} />
 
       <div className="mt-2 flex items-center justify-between">
         <ImageUploader businessId={businessId} onUpload={(url) => onChange(`${value}\n\n![](${url})`)} />

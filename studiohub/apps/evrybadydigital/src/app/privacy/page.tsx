@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#0a1e0a] text-white">
+    <main className="min-h-screen bg-surface text-white">
       <div className="mx-auto max-w-3xl px-6 py-24 sm:px-8 lg:py-32">
-        <p className="text-xs uppercase tracking-[0.3em] text-[#f7e7a6]">Legal</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-brand">Legal</p>
         <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">Privacy Policy</h1>
         <p className="mt-2 text-sm text-white/50">Last updated: 1 June 2026</p>
 
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
               Evrybady Digital Creative Marketing Ltd (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is a digital marketing and branding agency based in Northampton, United Kingdom. We are the data controller for personal data collected through our website evrybady.digital and in the course of providing our services.
             </p>
             <p className="mt-2">
-              Contact: <a href="mailto:hello@evrybady.digital" className="text-[#f7e7a6] hover:underline">hello@evrybady.digital</a> | 01604 59 89 99
+              Contact: <a href="mailto:hello@evrybady.digital" className="text-brand hover:underline">hello@evrybady.digital</a> | 01604 59 89 99
             </p>
           </section>
 
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
               <li>Withdraw consent at any time (where processing is based on consent)</li>
               <li>Lodge a complaint with the Information Commissioner&apos;s Office (ICO)</li>
             </ul>
-            <p className="mt-2">To exercise any of these rights, contact us at <a href="mailto:hello@evrybady.digital" className="text-[#f7e7a6] hover:underline">hello@evrybady.digital</a>.</p>
+            <p className="mt-2">To exercise any of these rights, contact us at <a href="mailto:hello@evrybady.digital" className="text-brand hover:underline">hello@evrybady.digital</a>.</p>
           </section>
 
           <section>
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-white mb-2">10. Contact</h2>
             <p>
               For any privacy-related enquiries, contact us at{' '}
-              <a href="mailto:hello@evrybady.digital" className="text-[#f7e7a6] hover:underline">hello@evrybady.digital</a> or call 01604 59 89 99.
+              <a href="mailto:hello@evrybady.digital" className="text-brand hover:underline">hello@evrybady.digital</a> or call 01604 59 89 99.
             </p>
           </section>
         </div>

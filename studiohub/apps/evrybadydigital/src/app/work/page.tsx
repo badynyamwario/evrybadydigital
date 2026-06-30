@@ -7,7 +7,7 @@ export default function WorkPage() {
   const hero = sections.find((section) => section.section_key === "hero");
 
   return (
-    <main className="min-h-screen bg-[#0a1e0a] text-white">
+    <main className="min-h-screen bg-surface text-white">
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
 
         {/* Hero */}
@@ -17,8 +17,8 @@ export default function WorkPage() {
             {error && <div className="text-lg text-rose-400">{error}</div>}
 
             {hero && (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-[#00000040] sm:p-12">
-                <p className="text-sm uppercase tracking-[0.4em] text-[#f7e7a6]">Clients & work</p>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/25 sm:p-12">
+                <p className="text-sm uppercase tracking-[0.4em] text-brand">Clients & work</p>
                 <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                   {hero.title}
                 </h1>
@@ -36,7 +36,7 @@ export default function WorkPage() {
               .map((section) => (
                 <article
                   key={section.id}
-                  className="rounded-2xl border border-white/10 bg-[#08140d] p-8 shadow-xl shadow-[#00000030]"
+                  className="rounded-2xl border border-white/10 bg-surface-alt p-8 shadow-xl shadow-black/19"
                 >
                   <h2 className="text-2xl font-semibold text-white">{section.title}</h2>
                   <p className="mt-4 text-white/70 leading-8">{section.subtitle}</p>

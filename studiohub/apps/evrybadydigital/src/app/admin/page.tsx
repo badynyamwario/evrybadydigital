@@ -206,16 +206,16 @@ export default function AdminPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#08140d] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-surface-alt text-white">
         <div className="max-w-md p-8 text-center">
-          <p className="mb-4">You must <a href="/login" className="underline text-[#f7e7a6]">sign in</a> to access the admin dashboard.</p>
+          <p className="mb-4">You must <a href="/login" className="underline text-brand">sign in</a> to access the admin dashboard.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#08140d] text-white p-8">
+    <div className="min-h-screen bg-surface-alt text-white p-8">
       <div className="max-w-4xl mx-auto">
         <header className="mb-6">
           <h1 className="text-2xl font-semibold">Admin dashboard</h1>
@@ -223,13 +223,15 @@ export default function AdminPage() {
         </header>
 
         <form onSubmit={createBusiness} className="mb-8 flex gap-3">
-          <input 
+          <label htmlFor="new-business-name" className="sr-only">New business name</label>
+          <input
+            id="new-business-name"
             value={newName} 
             onChange={(e) => setNewName(e.target.value)} 
             placeholder="New business name" 
             className="flex-1 rounded-md border border-white/10 bg-transparent px-4 py-2 focus:outline-none focus:border-white/30" 
           />
-          <button disabled={loading} className="rounded-md bg-[#f7e7a6] px-4 py-2 text-[#0a1e0a] font-medium disabled:opacity-50">
+          <button disabled={loading} className="rounded-md bg-brand px-4 py-2 text-surface font-medium disabled:opacity-50">
             Create
           </button>
         </form>

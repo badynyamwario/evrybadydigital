@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function ImageUploader({ businessId, onUpload }: { businessId: string; onUpload: (url: string) => void }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -27,19 +28,31 @@ export default function ImageUploader({ businessId, onUpload }: { businessId: st
       setError(message || 'Upload failed');
     } finally {
       setUploading(false);
-      // clear input value
-      (e.target as HTMLInputElement).value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }
 
   return (
     <div className="flex items-center gap-2">
-      <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-white/5 rounded">
-        <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
-        <span className="text-sm">Upload image</span>
-      </label>
-      {uploading && <span className="text-sm text-white/60">Uploading…</span>}
-      {error && <span className="text-sm text-red-400">{error}</span>}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFile}
+        className="sr-only"
+        id="image-upload-input"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        className="inline-flex items-center gap-2 px-3 py-2 bg-white/5 rounded text-sm hover:bg-white/10 transition"
+      >
+        Upload image
+      </button>
+      {uploading && <span className="text-sm text-white/60" aria-live="polite">Uploading…</span>}
+      {error && <span className="text-sm text-red-400" role="alert">{error}</span>}
     </div>
   );
 }

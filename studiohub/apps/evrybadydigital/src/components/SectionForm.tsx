@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Business, SectionFormState, FooterLink } from '@/types';
+import type { Business, SectionFormState, FooterLink, SocialPlatform } from '@/types';
 import type { SectionRecord } from '@/services/sectionService';
 import MarkdownEditor from '@/components/MarkdownEditor';
 
@@ -75,7 +75,7 @@ export default function SectionForm({
           <label className="block">
             <span className="text-sm">Title</span>
             <input 
-              aria-required="true" 
+              aria-required={true} 
               value={sectionForm.title ?? ''} 
               onChange={(e) => setSectionForm(s => ({ ...s, title: e.target.value }))} 
               className="mt-1 w-full border rounded px-2 py-2 focus:outline-none focus:ring-2 text-black" 
@@ -242,12 +242,52 @@ export default function SectionForm({
                   <button 
                     type="button" 
                     onClick={() => setFooterLinks([...getFooterLinks(), { label: 'New link', href: '#' }])} 
-                    className="px-3 py-2 bg-[#f7e7a6] text-[#0a1e0a] rounded mt-2"
+                    className="px-3 py-2 bg-brand text-surface rounded mt-2"
                   >
                     Add link
                   </button>
                 </div>
               </label>
+            </div>
+          </div>
+        )}
+
+        {/* Social Hooks Metadata Conditional block */}
+        {sectionForm.section_key === 'social_hooks' && (
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-4 mt-4">
+            <h4 className="mb-3 text-sm font-semibold text-white">Social hook settings</h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block sm:col-span-2">
+                <span className="text-sm">Description / intro text</span>
+                <textarea
+                  value={metaStr('intro')}
+                  onChange={(e) => updateMetadata('intro', e.target.value)}
+                  rows={3}
+                  className="mt-1 w-full border rounded px-2 py-2 text-black"
+                />
+              </label>
+              {(['instagram', 'linkedin', 'twitter', 'tiktok', 'facebook'] as SocialPlatform[]).map((platform) => (
+                <div key={platform} className="sm:col-span-2 border border-white/10 rounded p-3">
+                  <p className="text-sm font-medium capitalize text-brand mb-2">{platform}</p>
+                  <label className="block mb-2">
+                    <span className="text-xs">Hook style / tip</span>
+                    <input
+                      value={metaStr(`${platform}_tip`)}
+                      onChange={(e) => updateMetadata(`${platform}_tip`, e.target.value)}
+                      className="mt-1 w-full border rounded px-2 py-2 text-black text-sm"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs">Example hooks (one per line)</span>
+                    <textarea
+                      value={metaStr(`${platform}_examples`)}
+                      onChange={(e) => updateMetadata(`${platform}_examples`, e.target.value)}
+                      rows={3}
+                      className="mt-1 w-full border rounded px-2 py-2 text-black text-sm"
+                    />
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
         )}

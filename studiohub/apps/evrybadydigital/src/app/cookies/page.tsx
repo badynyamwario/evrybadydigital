@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <main className="min-h-screen bg-[#0a1e0a] text-white">
+    <main className="min-h-screen bg-surface text-white">
       <div className="mx-auto max-w-3xl px-6 py-24 sm:px-8 lg:py-32">
-        <p className="text-xs uppercase tracking-[0.3em] text-[#f7e7a6]">Legal</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-brand">Legal</p>
         <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">Cookie Policy</h1>
         <p className="mt-2 text-sm text-white/50">Last updated: 1 June 2026</p>
 
@@ -83,7 +83,7 @@ export default function CookiesPage() {
             </ul>
             <p className="mt-2">
               Please note that blocking essential cookies may affect the functionality of this website. For more information on managing cookies in your browser, visit{' '}
-              <a href="https://www.allaboutcookies.org" target="_blank" rel="noreferrer" className="text-[#f7e7a6] hover:underline">allaboutcookies.org</a>.
+              <a href="https://www.allaboutcookies.org" target="_blank" rel="noreferrer" className="text-brand hover:underline">allaboutcookies.org</a>.
             </p>
           </section>
 
@@ -105,7 +105,7 @@ export default function CookiesPage() {
             <h2 className="text-lg font-semibold text-white mb-2">7. Contact</h2>
             <p>
               For questions about our use of cookies, contact us at{' '}
-              <a href="mailto:hello@evrybady.digital" className="text-[#f7e7a6] hover:underline">hello@evrybady.digital</a> or call 01604 59 89 99.
+              <a href="mailto:hello@evrybady.digital" className="text-brand hover:underline">hello@evrybady.digital</a> or call 01604 59 89 99.
             </p>
           </section>
         </div>
