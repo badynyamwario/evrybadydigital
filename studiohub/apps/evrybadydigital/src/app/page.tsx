@@ -15,22 +15,6 @@ export default function Page() {
   const primaryHref = String(hero?.metadata?.primary_href ?? "/work");
   const secondaryCta = String(hero?.metadata?.secondary_cta ?? "Talk to us");
   const secondaryHref = String(hero?.metadata?.secondary_href ?? "/contact");
-  const heroImage = String(hero?.metadata?.image_url ?? '');
-  const featureA = String(hero?.metadata?.feature_a_title ?? "Branding & identity");
-  const featureADetail = String(hero?.metadata?.feature_a_detail ?? "Logo, visual systems and positioning that build trust.");
-  const featureB = String(hero?.metadata?.feature_b_title ?? "Website & SEO");
-  const featureBDetail = String(hero?.metadata?.feature_b_detail ?? "Web development, SEO and lead generation that converts.");
-  const featuredHeading = String(hero?.metadata?.featured_heading ?? "Featured case study");
-  const featuredName = String(hero?.metadata?.featured_name ?? "Rose Gallery");
-  const featuredDescription = String(hero?.metadata?.featured_description ?? "A Northampton fine art gallery project with an 83% keyword first place performance and a modern online shop experience.");
-  const featuredBadge1 = String(hero?.metadata?.featured_badge_1 ?? "Web design");
-  const featuredBadge2 = String(hero?.metadata?.featured_badge_2 ?? "SEO");
-  const featuredBadge3 = String(hero?.metadata?.featured_badge_3 ?? "Creative support");
-  const stat1 = String(hero?.metadata?.stat_1 ?? "83%");
-  const stat1Label = String(hero?.metadata?.stat_1_label ?? "of focus keywords reaching first place");
-  const stat2 = String(hero?.metadata?.stat_2 ?? "Local & national");
-  const stat2Label = String(hero?.metadata?.stat_2_label ?? "Supporting startups through bluechip brands.");
-
   return (
     <main className="min-h-screen bg-surface text-white">
 
@@ -39,15 +23,15 @@ export default function Page() {
         <div className="pointer-events-none absolute inset-0 blur-3xl opacity-80" style={{ background: 'radial-gradient(circle at top right, rgba(255,215,0,0.18), transparent 24%)' }} />
         <div className="pointer-events-none absolute inset-y-0 left-0 w-72 bg-linear-to-b from-brand-dark/25 to-transparent blur-3xl opacity-80" />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:py-24">
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div className="space-y-8 max-w-2xl">
-              <div className="inline-flex items-center gap-2.5 rounded-full border border-brand/30 bg-white/5 px-4 py-2 text-sm text-brand">
-                <span className="inline-flex h-2 w-2 rounded-full bg-brand" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-brand/80 backdrop-blur-sm">
+                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-brand shadow-lg shadow-brand/50" />
                 {label}
               </div>
 
               <div className="space-y-5">
-                <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+                <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl bg-gradient-to-r from-white via-white to-brand/60 bg-clip-text text-transparent">
                   {title}
                 </h1>
                 <p className="max-w-xl text-lg leading-8 text-white/75 sm:text-xl">
@@ -56,11 +40,11 @@ export default function Page() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <a href={primaryHref} className="inline-flex items-center justify-center rounded-full bg-brand px-8 py-3 text-sm font-semibold text-surface transition hover:bg-white">
+                <a href={primaryHref} className="inline-flex items-center justify-center rounded-full bg-brand px-8 py-3 text-sm font-semibold text-surface shadow-lg shadow-brand/20 transition hover:bg-white hover:shadow-xl hover:shadow-white/10">
                   {primaryCta}
                 </a>
-                <a href={secondaryHref} className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                  {secondaryCta}
+                <a href={secondaryHref} className="inline-flex items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.04] px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/25 hover:bg-white/10">
+                  {secondaryHref === "/contact" ? "Get in touch" : secondaryCta}
                 </a>
               </div>
 
@@ -70,36 +54,42 @@ export default function Page() {
                   { id: "social", title: "Social media growth", subtitle: "Management, content and monetisation for professional brands." },
                   { id: "seo", title: "Website & SEO", subtitle: "Web development, SEO and lead generation that converts." },
                 ]).map((card) => (
-                  <div key={card.id} className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm">
-                    <p className="font-semibold text-white">{card.title}</p>
-                    <p className="mt-2 text-white/70">{card.subtitle}</p>
+                  <div key={card.id} className="group rounded-xl border border-white/[0.06] bg-white/[0.03] p-5 text-sm backdrop-blur-sm transition hover:border-white/[0.14]">
+                    <p className="font-semibold text-white group-hover:text-brand transition-colors">{card.title}</p>
+                    <p className="mt-2 text-white/50 group-hover:text-white/70 transition-colors">{card.subtitle}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative isolate overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/19 sm:p-10">
-              <div className="absolute -right-12 top-8 h-48 w-48 rounded-full bg-brand/20 blur-3xl" />
-              <div className="absolute -left-10 bottom-10 h-40 w-40 rounded-full bg-brand/10 blur-3xl" />
-              <div className="relative grid gap-6">
-                <div className="rounded-xl bg-surface p-6 text-white/90 shadow-xl shadow-black/13">
-                  <span className="text-xs uppercase tracking-[0.36em] text-brand">{featuredHeading}</span>
-                  <h2 className="mt-4 text-2xl font-semibold leading-tight sm:text-3xl">{featuredName}</h2>
-                  <p className="mt-3 text-sm leading-7 text-white/70">{featuredDescription}</p>
-                  <div className="mt-5 flex flex-wrap gap-2.5 text-xs text-brand">
-                    <span className="rounded-full border border-brand/20 bg-brand/5 px-3 py-1.5">{featuredBadge1}</span>
-                    <span className="rounded-full border border-brand/20 bg-brand/5 px-3 py-1.5">{featuredBadge2}</span>
-                    <span className="rounded-full border border-brand/20 bg-brand/5 px-3 py-1.5">{featuredBadge3}</span>
+            <div className="relative isolate">
+              <div className="absolute -right-16 top-4 h-72 w-72 rounded-full bg-brand/10 blur-3xl" />
+              <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-brand/5 blur-3xl" />
+              <div className="relative grid gap-5">
+                <div className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] to-transparent p-8 shadow-2xl shadow-black/20 backdrop-blur-sm transition hover:border-white/[0.12]">
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand/[0.03] to-transparent opacity-0 transition group-hover:opacity-100" />
+                  <div className="relative">
+                    <span className="text-xs uppercase tracking-[0.3em] text-white/40">Our approach</span>
+                    <h3 className="mt-4 text-xl font-semibold leading-snug text-white">Strategy-led digital growth for professional service brands.</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-white/50">
+                      We combine brand strategy, creative design, and performance marketing to build visibility and drive measurable revenue for our clients.
+                    </p>
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-brand/20 bg-brand/[0.06] px-3 py-1.5 text-xs text-brand/80">Branding</span>
+                      <span className="rounded-full border border-brand/20 bg-brand/[0.06] px-3 py-1.5 text-xs text-brand/80">Web Design</span>
+                      <span className="rounded-full border border-brand/20 bg-brand/[0.06] px-3 py-1.5 text-xs text-brand/80">SEO</span>
+                      <span className="rounded-full border border-brand/20 bg-brand/[0.06] px-3 py-1.5 text-xs text-brand/80">Social</span>
+                    </div>
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm">
-                    <p className="font-semibold text-white">{stat1}</p>
-                    <p className="mt-2 text-white/70">{stat1Label}</p>
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="group rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-xl shadow-black/15 backdrop-blur-sm transition hover:border-white/[0.12]">
+                    <p className="text-2xl font-semibold text-white">50+</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-white/50">Professional brands empowered</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm">
-                    <p className="font-semibold text-white">{stat2}</p>
-                    <p className="mt-2 text-white/70">{stat2Label}</p>
+                  <div className="group rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-xl shadow-black/15 backdrop-blur-sm transition hover:border-white/[0.12]">
+                    <p className="text-2xl font-semibold text-white">4.9★</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-white/50">Average client satisfaction</p>
                   </div>
                 </div>
               </div>
